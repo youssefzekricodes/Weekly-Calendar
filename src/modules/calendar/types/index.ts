@@ -1,4 +1,22 @@
-type Recurrence = "none" | "daily" | "weekly";
+export enum Recurrence {
+  NONE = "none",
+  DAILY = "daily",
+  WEEKLY = "weekly",
+}
+export enum EventCategories {
+  WORK = "work",
+  PERSONAL = "personal",
+  MEETING = "meeting",
+}
+export enum RecurrenceDays {
+  MONDAY = "Monday",
+  TUESDAY = "Tuesday",
+  WEDNESDAY = "Wednesday",
+  THURSDAY = "Thursday",
+  FRIDAY = "Friday",
+  SATURDAY = "Saturday",
+  SUNDAY = "Sunday",
+}
 
 export interface CalendarEvent {
   id: string;
@@ -6,8 +24,8 @@ export interface CalendarEvent {
   start: Date;
   end: Date;
   recurrence: Recurrence;
-  recurrenceDays?: number[];
-  category: "work" | "personal" | "meeting";
+  recurrenceDays?: RecurrenceDays[];
+  category: EventCategories;
 }
 
 export enum CalendarView {

@@ -10,9 +10,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "antd": "^5.25.1",
+    "clsx": "^2.1.1",
     "dayjs": "^1.11.13",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-hook-form": "^7.56.3",
     "sass": "^1.88.0",
     "scss": "^0.2.4",
     "zustand": "^5.0.4"
