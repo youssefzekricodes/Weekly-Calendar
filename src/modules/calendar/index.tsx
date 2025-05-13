@@ -1,52 +1,81 @@
+import { useState } from "react";
+import dayjs from "dayjs";
+import isoWeek from "dayjs/plugin/isoWeek";
+
+import { useEventsStore } from "./store";
+
+dayjs.extend(isoWeek);
+
 const WeeklyCalendar = () => {
+  const { events } = useEventsStore();
+  console.log({ events });
+  const [weekOffset, setWeekOffset] = useState(0);
+
+  const currentWeekStart = dayjs().add(weekOffset, "week").startOf("isoWeek");
+  const daysOfWeek = Array.from({ length: 7 }, (_, i) =>
+    currentWeekStart.add(i, "day")
+  );
+
+  const weekRangeLabel = `${daysOfWeek[0].format(
+    "MMM D"
+  )} - ${daysOfWeek[6].format("MMM D, YYYY")}`;
+
   return (
     <div className="calendar">
-      <div className="calendar__grid">
-        <div className="calendar__header">
-          {days.map((day, index) => (
-            <div className="calendar__header__item" key={index}>
-              {day}
-            </div>
-          ))}
-        </div>
-        {/* <div className="calendar-body">
-        {sessions.map((session, index) => (
-          <div className="calendar-row" key={index}>
-            <div className="calendar-session">
-              {session.start} - {session.end}
-            </div>
-            {days.map((_, dayIndex) => (
-              <div
-                className={`calendar-cell ${index % 2 === 0 ? "even" : "odd"}`}
-                key={dayIndex}
-              ></div>
-            ))}
-          </div>
-        ))}
-      </div> */}
+      <div className="calendar__header">
+        <button onClick={() => setWeekOffset((prev) => prev - 1)} className="">
+          ← Previous Week
+        </button>
+        <div>{weekRangeLabel}</div>
+        <button onClick={() => setWeekOffset((prev) => prev + 1)} className=" ">
+          Next Week →
+        </button>
       </div>
+
+      <table className="calendar__table  ">
+        <thead>
+          <tr className="calendar__table__header">
+            <th className="calendar__table__header__row ">days / hours</th>
+            {daysOfWeek.map((day, index) => (
+              <th key={index} className="calendar__table__header__row ">
+                {day.format("dddd D")}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="calendar__table__body">
+          {times.map((time, index) => (
+            <tr key={index}>
+              <td className="calendar__cell">{time}:00</td>
+              {daysOfWeek.map((_, dayIndex) => (
+                <td key={dayIndex} className="calendar__cell"></td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
 
 export default WeeklyCalendar;
-const days = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
 
-const sessions = [
-  { start: "09:00", end: "10:00" },
-  { start: "10:00", end: "11:00" },
-  { start: "11:00", end: "12:00" },
-  { start: "12:00", end: "13:00" },
-  { start: "13:00", end: "14:00" },
-  { start: "14:00", end: "15:00" },
-  { start: "15:00", end: "16:00" },
-  { start: "16:00", end: "17:00" },
+const times = [
+  "08",
+  "09",
+  "10",
+  "11",
+  "12",
+  "13",
+  "14",
+  "15",
+  "16",
+  "17",
+  "18",
+  "19",
+  "20",
+  "21",
+  "22",
+  "23",
+  "00",
 ];
