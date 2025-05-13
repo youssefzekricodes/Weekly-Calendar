@@ -1,0 +1,63 @@
+.calendar__cell {
+  position: relative;
+
+  &--slot {
+    position: relative;
+    height: 100%;
+  }
+}
+
+.calendar__event {
+  @include Flex(column, start, start);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  font-size: 1.2rem;
+  font-weight: 500;
+  z-index: 1;
+  border: 2px solid $gray-50;
+  color: #333;
+  &--drag-handle {
+    height: 5rem;
+  }
+
+  &--work {
+    background-color: $event-work-bg;
+    border-color: $event-work-border;
+  }
+
+  &--personal {
+    background-color: $event-personal-bg;
+    border-color: $event-personal-border;
+  }
+
+  &--meeting {
+    background-color: $event-meetings-bg;
+    border-color: $event-meetings-border;
+  }
+}
+
+.event-pop-over {
+  &__tag {
+    @include Flex();
+    border-width: 2px;
+    border-style: solid;
+    font-size: 1.2rem;
+    font-weight: 500;
+    border-radius: 0.5rem;
+    padding: 0.2rem 1rem;
+    width: fit-content;
+    min-width: 10rem;
+  }
+  &__title {
+    @include Flex(row, space-between);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: $event-text;
+  }
+}

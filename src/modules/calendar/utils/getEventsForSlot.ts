@@ -1,7 +1,6 @@
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-
 import type { RecurrenceDays, CalendarEvent } from "../types";
 
 dayjs.extend(isSameOrAfter);
@@ -23,38 +22,26 @@ export const getEventsForSlot = (
   events: CalendarEvent[] | null
 ): CalendarEvent[] | undefined => {
   return events?.filter((event) => {
+    if (event.excludedDates?.some((date) => date.isSame(day, "day"))) {
+      return false;
+    }
     const eventStart = dayjs(event.start);
-    const eventEnd = dayjs(event.end);
-
-    const isInWeek =
-      day.isSameOrAfter(eventStart.startOf("day")) &&
-      day.isBefore(eventEnd.add(1, "day").startOf("day"));
 
     const matchesOneTime =
       event.recurrence === "none" &&
       eventStart.isSame(day, "day") &&
-      hour >= eventStart.hour() &&
-      hour < eventEnd.hour();
-
+      hour === eventStart.hour();
     const matchesDaily =
       event.recurrence === "daily" &&
-      day.isSameOrAfter(dayjs(event.start).startOf("week")) &&
-      day.isSameOrBefore(dayjs(event.start).startOf("week").add(6, "day")) &&
-      day.isSameOrAfter(dayjs(event.start), "day") &&
-      hour >= dayjs(event.start).hour() &&
-      hour < dayjs(event.end).hour();
+      day.isSameOrAfter(eventStart, "day") &&
+      hour === eventStart.hour();
 
     const matchesWeekly =
       event.recurrence === "weekly" &&
-      isInWeek &&
+      day.isSameOrAfter(eventStart, "day") &&
       event.recurrenceDays?.some((d) => {
-        const recDayIndex =
-          recurrenceDayToIndex[d.toUpperCase() as RecurrenceDays];
-        return (
-          recDayIndex === day.day() &&
-          hour >= eventStart.hour() &&
-          hour < eventEnd.hour()
-        );
+        const recDayIndex = recurrenceDayToIndex[d as RecurrenceDays];
+        return recDayIndex === day.day() && hour === eventStart.hour();
       });
 
     return matchesOneTime || matchesDaily || matchesWeekly;

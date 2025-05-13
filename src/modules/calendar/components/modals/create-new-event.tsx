@@ -1,15 +1,16 @@
+// CreateEventModal.tsx
 import {
   Form as AntForm,
   Button,
   Checkbox,
-  DatePicker,
   Drawer,
   Input,
   Select,
+  TimePicker,
 } from "antd";
 import dayjs from "dayjs";
+import { useEffect, useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
-
 import { useEventsStore } from "../../store";
 import {
   EventCategories,
@@ -19,22 +20,29 @@ import {
 } from "../../types";
 
 const { Option } = Select;
-const { RangePicker } = DatePicker;
-
-type CalendarEventFormInput = Omit<CalendarEvent, "id" | "start" | "end"> & {
-  datetime: [dayjs.Dayjs, dayjs.Dayjs];
-};
-
 const weekdayOptions = Object.values(RecurrenceDays);
+
+type CalendarEventFormInput = Omit<CalendarEvent, "id">;
+
+interface ICreateEventModalProps {
+  visible?: boolean;
+  onClose?: () => void;
+  selectedCell: Partial<CalendarEvent> | null;
+}
 
 const CreateEventModal = ({
   visible = true,
   onClose,
-}: {
-  visible?: boolean;
-  onClose?: () => void;
-}) => {
-  const { addEvent } = useEventsStore();
+  selectedCell,
+}: ICreateEventModalProps) => {
+  const actionRef = useRef<"update-one" | "update-all">("update-all");
+  const { addEvent, updateEvent, excludeDateFromRecurrence } = useEventsStore();
+
+  const isEditing = !!selectedCell?.id;
+  const isRecurring = [Recurrence.DAILY, Recurrence.WEEKLY].includes(
+    selectedCell?.recurrence!
+  );
+
   const {
     control,
     handleSubmit,
@@ -42,83 +50,116 @@ const CreateEventModal = ({
     formState: { errors },
   } = useForm<CalendarEventFormInput>({
     defaultValues: {
+      title: "",
+      start: dayjs(selectedCell?.start),
+      end: dayjs(selectedCell?.start).add(1, "hour"),
       recurrence: Recurrence.NONE,
       category: EventCategories.WORK,
     },
   });
-  const selectedRecurrence = useWatch({ control, name: "recurrence" });
 
-  const onSubmit = (data: CalendarEvent) => {
-    addEvent(data);
+  const recurrence = useWatch({ control, name: "recurrence" });
+
+  useEffect(() => {
+    if (selectedCell?.start) {
+      reset({
+        title: selectedCell.title ?? "",
+        start: dayjs(selectedCell.start),
+        end:
+          dayjs(selectedCell.end) ?? dayjs(selectedCell.start).add(1, "hour"),
+        recurrence: selectedCell.recurrence ?? Recurrence.NONE,
+        recurrenceDays: selectedCell.recurrenceDays ?? [],
+        category: selectedCell.category ?? EventCategories.WORK,
+      });
+    }
+  }, [selectedCell]);
+
+  const handleClose = () => {
+    reset();
+    onClose?.();
   };
-  const submitHandler = (data: CalendarEventFormInput) => {
-    const [start, end] = data.datetime;
+
+  const handleFormSubmit = (data: CalendarEventFormInput) => {
+    const { start, end, ...rest } = data;
+
+    const startTime = dayjs(selectedCell?.start)
+      .hour(dayjs(start).hour())
+      .minute(0)
+      .second(0);
+
+    let endTime = dayjs(selectedCell?.start)
+      .hour(dayjs(end).hour())
+      .minute(0)
+      .second(0);
+
+    if (!endTime.isAfter(startTime)) {
+      endTime = startTime.add(1, "hour");
+    }
+
     const payload: CalendarEvent = {
-      id: crypto.randomUUID(),
-      title: data.title,
-      start: start.toDate(),
-      end: end.toDate(),
-      recurrence: data.recurrence,
+      ...rest,
+      id: selectedCell?.id ?? crypto.randomUUID(),
+      start: dayjs(startTime.toDate()),
+      end: dayjs(endTime.toDate()),
       recurrenceDays:
-        data.recurrence === "weekly" ? data.recurrenceDays ?? [] : undefined,
-      category: data.category,
+        rest.recurrence === Recurrence.WEEKLY
+          ? rest.recurrenceDays ?? []
+          : undefined,
     };
-    onSubmit?.(payload);
-    onClose?.();
-  };
-  const handelClose = () => {
-    reset(undefined, { keepErrors: false });
-    onClose?.();
+
+    if (isEditing) {
+      if (actionRef.current === "update-one") {
+        excludeDateFromRecurrence(startTime, selectedCell!.id!);
+        addEvent({
+          ...payload,
+          id: crypto.randomUUID(),
+          recurrence: Recurrence.NONE,
+        });
+      } else {
+        updateEvent(payload);
+      }
+    } else {
+      addEvent(payload);
+    }
+
+    handleClose();
   };
 
   return (
     <Drawer
       open={visible}
-      title="Create Event"
-      onClose={handelClose}
+      title={`${isEditing ? "Edit" : "Create"} Event`}
+      onClose={handleClose}
       footer={null}
     >
-      <form onSubmit={handleSubmit(submitHandler)} noValidate>
-        <Controller
-          control={control}
-          name="title"
-          rules={{ required: "Title is required" }}
-          render={({ field }) => <Input {...field} placeholder="title" />}
-        />
-
-        <AntForm.Item
-          label="Time Range"
-          validateStatus={errors.datetime ? "error" : ""}
-          help={
-            errors.datetime?.message ||
-            (errors.datetime && "Start and end time are required")
-          }
-        >
+      <form onSubmit={handleSubmit(handleFormSubmit)}>
+        <AntForm.Item label="Title">
           <Controller
             control={control}
-            name="datetime"
-            rules={{
-              required: "Start and end time are required",
-              validate: (value) => {
-                if (!value || value.length !== 2)
-                  return "Please select a time range";
-                const [start, end] = value;
-                if (!start || !end)
-                  return "Both start and end times are required";
-                if (!start.isSame(end, "day"))
-                  return "Start and end must be on the same day";
-                if (!start.isBefore(end))
-                  return "Start time must be before end time";
-                return true;
-              },
-            }}
+            name="title"
+            rules={{ required: "Title is required" }}
             render={({ field }) => (
-              <RangePicker
-                showTime
-                format="YYYY-MM-DD HH"
-                value={field.value}
-                onChange={field.onChange}
-              />
+              <Input {...field} placeholder="Event title" />
+            )}
+          />
+        </AntForm.Item>
+
+        <AntForm.Item label="Start Time">
+          <Controller
+            control={control}
+            name="start"
+            render={({ field }) => (
+              <TimePicker {...field} format="HH" value={dayjs(field.value)} />
+            )}
+          />
+        </AntForm.Item>
+
+        <AntForm.Item label="End Time">
+          <Controller
+            control={control}
+            name="end"
+            render={({ field }) => (
+              <TimePicker {...field} format="HH" value={dayjs(field.value)} />
             )}
           />
         </AntForm.Item>
@@ -128,10 +169,10 @@ const CreateEventModal = ({
             control={control}
             name="category"
             render={({ field }) => (
-              <Select {...field}>
-                {Object.values(EventCategories).map((value) => (
-                  <Option key={value} value={value}>
-                    {value[0].toUpperCase() + value.slice(1)}
+              <Select {...field} value={field.value}>
+                {Object.values(EventCategories).map((val) => (
+                  <Option key={val} value={val}>
+                    {val[0].toUpperCase() + val.slice(1)}
                   </Option>
                 ))}
               </Select>
@@ -144,10 +185,10 @@ const CreateEventModal = ({
             control={control}
             name="recurrence"
             render={({ field }) => (
-              <Select {...field}>
-                {Object.values(Recurrence).map((value) => (
-                  <Option key={value} value={value}>
-                    {value[0].toUpperCase() + value.slice(1)}
+              <Select {...field} value={field.value}>
+                {Object.values(Recurrence).map((val) => (
+                  <Option key={val} value={val}>
+                    {val[0].toUpperCase() + val.slice(1)}
                   </Option>
                 ))}
               </Select>
@@ -155,7 +196,7 @@ const CreateEventModal = ({
           />
         </AntForm.Item>
 
-        {selectedRecurrence === "weekly" && (
+        {recurrence === Recurrence.WEEKLY && (
           <AntForm.Item
             label="Repeat On"
             validateStatus={errors.recurrenceDays ? "error" : ""}
@@ -165,14 +206,11 @@ const CreateEventModal = ({
               control={control}
               name="recurrenceDays"
               rules={{
-                validate: (value) => {
-                  if (
-                    selectedRecurrence === "weekly" &&
-                    (!value || value.length === 0)
-                  )
-                    return "Please select at least one day";
-                  return true;
-                },
+                validate: (value) =>
+                  recurrence === Recurrence.WEEKLY &&
+                  (!value || value.length === 0)
+                    ? "Please select at least one day"
+                    : true,
               }}
               render={({ field }) => (
                 <Checkbox.Group
@@ -185,11 +223,35 @@ const CreateEventModal = ({
           </AntForm.Item>
         )}
 
+        {isRecurring && (
+          <p className="text-sm text-gray-500">
+            This is a recurring event every{" "}
+            {selectedCell?.recurrence?.toLowerCase()}.
+          </p>
+        )}
+
         <div className="flex justify-end mt-4 gap-2">
-          <Button onClick={handelClose}>Cancel</Button>
-          <Button type="primary" htmlType="submit">
-            Create
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button
+            type="primary"
+            htmlType="submit"
+            onClick={() => {
+              actionRef.current = "update-all";
+            }}
+          >
+            {isEditing ? "Update All" : "Create Event"}
           </Button>
+          {isEditing && isRecurring && (
+            <Button
+              type="default"
+              htmlType="submit"
+              onClick={() => {
+                actionRef.current = "update-one";
+              }}
+            >
+              Update This Only
+            </Button>
+          )}
         </div>
       </form>
     </Drawer>
