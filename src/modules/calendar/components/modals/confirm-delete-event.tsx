@@ -1,21 +1,22 @@
-import { Modal } from "antd";
+import { Button, Modal } from "antd";
 import dayjs from "dayjs";
 import { useEventsStore } from "../../store";
 import CloseIcon from "../../../../assets/icons/ic-close";
+import DeleteIllustrate from "../../../../assets/icons/ic-delete-ilustrate";
 
 interface IConfirmDeleteProps {
   open: boolean;
   onCancel: () => void;
   id: string;
   date?: dayjs.Dayjs;
-  isRecurring?: boolean;
+  isRecurrence?: boolean;
 }
 const ConfirmDelete = ({
   open,
   onCancel,
   id,
   date,
-  isRecurring,
+  isRecurrence,
 }: IConfirmDeleteProps) => {
   const { excludeDateFromRecurrence, removeEvent } = useEventsStore();
   const handelDeleteSeries = () => {
@@ -24,7 +25,7 @@ const ConfirmDelete = ({
   };
 
   const handelDeleteOne = () => {
-    if (isRecurring) excludeDateFromRecurrence(dayjs(date), id);
+    if (isRecurrence) excludeDateFromRecurrence(dayjs(date), id);
     else removeEvent(id);
     onCancel();
   };
@@ -32,34 +33,43 @@ const ConfirmDelete = ({
   return (
     <Modal
       open={open}
-      onClose={onCancel}
+      onCancel={onCancel}
       footer={null}
       closeIcon={<CloseIcon />}
+      title={<p className="create-event-drawer__title">Delete</p>}
     >
       <div className="confirm-delete">
-        <h2>Are you sure you want to delete this event?</h2>
-        <div className="confirm-delete__actions">
-          <button className="confirm-delete__button confirm-delete__button--cancel">
-            Cancel
-          </button>
-          {isRecurring && (
-            <div className="confirm-delete__recurrence">
-              <p>This event is part of a recurring series.</p>
-              <p>Do you want to delete this event only or the entire series?</p>
-              <button
-                className="confirm-delete__button confirm-delete__button--delete"
-                onClick={handelDeleteSeries}
-              >
-                Delete All
-              </button>
-            </div>
-          )}
-          <button
-            className="confirm-delete__button confirm-delete__button--delete"
-            onClick={handelDeleteOne}
+        <DeleteIllustrate />
+        <h2 className="confirm-delete__title">
+          Are you sure you want to delete this event?
+        </h2>
+        <p className="confirm-delete__subtitle">
+          If you click on delete all, all the events in this series will be
+          deleted.
+        </p>
+        <div className="create-event-drawer__footer confirm-delete__footer ">
+          <Button
+            onClick={onCancel}
+            className="create-event-drawer__button create-event-drawer__cancel"
           >
-            Delete This Event
-          </button>
+            Cancel
+          </Button>
+          <Button
+            type="primary"
+            onClick={handelDeleteOne}
+            className="create-event-drawer__button confirm-delete__delete-one"
+          >
+            {`Delete One`}
+          </Button>
+          {isRecurrence && (
+            <Button
+              type="primary"
+              onClick={handelDeleteSeries}
+              className="create-event-drawer__button confirm-delete__delete-all"
+            >
+              {`Delete all `}
+            </Button>
+          )}
         </div>
       </div>
     </Modal>

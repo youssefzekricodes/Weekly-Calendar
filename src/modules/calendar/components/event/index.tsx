@@ -8,6 +8,8 @@ import { Popover } from "antd";
 import { useEventsStore } from "../../store";
 import ConfirmDelete from "../modals/confirm-delete-event";
 import RefreshIcon from "../../../../assets/icons/ic-refresh";
+import EditIcon from "../../../../assets/icons/ic-edit";
+import DeleteIcon from "../../../../assets/icons/ic-delete";
 
 interface IEventCardProps {
   event: CalendarEvent;
@@ -30,7 +32,8 @@ const EventCard = forwardRef<any, IEventCardProps>(
       >
         <Popover
           content={EventCardPopOver({ event, duration, day })}
-          trigger="hover"
+          trigger="click"
+          placement="rightTop"
         >
           <div
             className={clsx(
@@ -84,22 +87,11 @@ const EventCardPopOver = ({
   const handelOpen = () => {
     setOpen(true);
   };
+  const isRecurrence = [Recurrence.DAILY, Recurrence.WEEKLY].includes(
+    event.recurrence
+  );
   return (
     <div className="event-pop-over">
-      <div className="event-pop-over__title">
-        {event.title}
-        <div
-          className={`event-pop-over__tag calendar__event--${event.category}`}
-        >
-          {event.category}
-        </div>
-      </div>
-      <div className="event-pop-over__details">
-        <div>
-          {dayjs(event.start).format("MMM D, YYYY h:mm A")} -{" "}
-          {dayjs(event.end).format("h:mm A")}
-        </div>
-      </div>
       <button
         onClick={() =>
           setSelectedCell({
@@ -108,16 +100,22 @@ const EventCardPopOver = ({
             end: dayjs(renderedEnd.toDate()),
           })
         }
+        className="event-pop-over__button"
       >
-        Edit
+        <EditIcon /> Edit
       </button>
-      <button onClick={handelOpen}>Delete</button>
+      <button
+        onClick={handelOpen}
+        className="event-pop-over__button event-pop-over__button--delete"
+      >
+        <DeleteIcon /> Delete
+      </button>
       <ConfirmDelete
         open={open}
         onCancel={handelCancel}
         id={event.id}
         date={renderedStart}
-        isRecurring={!!event.recurrence?.length}
+        isRecurrence={isRecurrence}
       />
     </div>
   );

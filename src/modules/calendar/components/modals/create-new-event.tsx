@@ -138,7 +138,7 @@ const CreateEventModal = ({
       open={visible}
       title={
         <p className="create-event-drawer__title">
-          {isEditing ? "Edit event" : "Create new event"}
+          {isEditing ? "Edit event" : "Create  event"}
         </p>
       }
       onClose={handleClose}

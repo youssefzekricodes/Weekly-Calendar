@@ -1,6 +1,7 @@
 import type dayjs from "dayjs";
+
 import CalendarGrid from "../components/calendar-grid";
-import ClockIcon from "../../../assets/icons/ic-clock";
+import CalendarIcon from "../../../assets/icons/ic-calendar";
 
 interface DayViewProps {
   daysOfWeek: dayjs.Dayjs[];
@@ -11,7 +12,7 @@ const CalendarTableView = ({ daysOfWeek }: DayViewProps) => {
       <thead>
         <tr className="calendar__table__header">
           <th className="calendar__key-cell">
-            <ClockIcon />
+            <CalendarIcon className="calendar__icon" />
           </th>
           {daysOfWeek.map((day, i) => (
             <th key={i}>{day.format("dddd D")}</th>

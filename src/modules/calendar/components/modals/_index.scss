@@ -128,3 +128,38 @@
     }
   }
 }
+.confirm-delete {
+  @include Flex(column, start, center);
+  height: 30rem;
+  gap: 2rem;
+  &__title {
+    color: #444864;
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 600;
+  }
+  &__subtitle {
+    color: #7d8bb4;
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 400;
+  }
+  &__delete-one {
+    color: white;
+    background-color: $red-lighter;
+    &:hover {
+      background-color: $red !important;
+    }
+  }
+  &__delete-all {
+    color: $white;
+    background-color: $orange;
+    &:hover {
+      background-color: $orange-darker !important;
+    }
+  }
+}
+
+.ant-modal {
+  width: 60rem !important;
+}
