@@ -1,15 +1,15 @@
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { DragDropContext, type DropResult } from "react-beautiful-dnd";
 
-import CreateEventModal from "./components/modals/create-new-event";
 import CalendarHeader from "./components/calendar-header";
+import CreateEventModal from "./components/modals/create-new-event";
 import CalendarTableView from "./views/calendar-table-view";
 
+import CalendarSwitch from "./components/calendar-switch";
 import { useEventsStore } from "./store";
 import { CalendarView, Recurrence } from "./types";
-import CalendarSwitch from "./components/calendar-switch";
 dayjs.extend(isoWeek);
 
 const WeeklyCalendar = () => {
@@ -24,20 +24,14 @@ const WeeklyCalendar = () => {
     addEvent,
   } = useEventsStore();
 
-  const [weekOffset, setWeekOffset] = useState<number>(() => {
-    const savedOffset = localStorage.getItem("calendar-week-offset");
-    return savedOffset ? Number(savedOffset) : 0;
-  });
-
-  useEffect(() => {
-    localStorage.setItem("calendar-week-offset", weekOffset.toString());
-  }, [weekOffset]);
+  const [weekOffset, setWeekOffset] = useState<number>(0);
+  const [dayOffset, setDayOffset] = useState<number>(0);
 
   const currentWeekStart = dayjs().add(weekOffset, "week").startOf("isoWeek");
 
   const daysOfWeek =
     view === CalendarView.DAY
-      ? [dayjs().add(weekOffset, "day")]
+      ? [currentWeekStart.add(dayOffset, "day")]
       : Array.from({ length: 7 }, (_, i) => currentWeekStart.add(i, "day"));
 
   const weekRangeLabel =
@@ -53,45 +47,55 @@ const WeeklyCalendar = () => {
     const { destination, draggableId } = result;
 
     if (!destination) return;
-    const [eventStart, eventId] = draggableId.split("//");
+    const [eventDate, duration, eventId] = draggableId.split("//");
     const [destDateStr, destHourStr] = destination.droppableId.split("__");
     const newStart = dayjs(destDateStr).hour(Number(destHourStr)).minute(0);
     const draggedEvent = events?.find((e) => e.id === eventId);
     if (!draggedEvent) return;
-    const duration = dayjs(draggedEvent.end).diff(eventStart, "minute");
-    const newEnd = newStart.add(duration, "minute");
+    const newEnd = newStart.add(Number(duration), "hour");
+
     const isRecurring = [Recurrence.DAILY, Recurrence.WEEKLY].includes(
       draggedEvent?.recurrence!
     );
 
     if (isRecurring) {
-      const startTime = dayjs(eventStart);
-
-      excludeDateFromRecurrence(startTime, draggableId!);
+      const date = dayjs(eventDate);
+      excludeDateFromRecurrence(date, eventId!);
       addEvent({
         ...draggedEvent,
         start: newStart,
         end: newEnd,
         id: crypto.randomUUID(),
         recurrence: Recurrence.NONE,
+        recurrenceDays: undefined,
+        excludedDates: undefined,
+      });
+    } else {
+      updateEvent({
+        ...draggedEvent,
+        start: newStart,
+        end: newEnd,
       });
     }
-    updateEvent({
-      ...draggedEvent,
-      start: newStart,
-      end: newEnd,
-    });
   };
 
   const handelSwitchView = (newView: CalendarView) => {
     setView(newView);
   };
 
+  const handleOffsetChange = (direction: "prev" | "next") => {
+    if (view === CalendarView.DAY) {
+      setDayOffset((prev) => prev + (direction === "next" ? 1 : -1));
+    } else {
+      setWeekOffset((prev) => prev + (direction === "next" ? 1 : -1));
+    }
+  };
+
   return (
     <div className="calendar">
       <div className="calendar__settings">
         <CalendarHeader
-          setWeekOffset={setWeekOffset}
+          setWeekOffset={handleOffsetChange}
           weekRangeLabel={weekRangeLabel}
           view={view}
         />

@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isSameOrBefore from "dayjs/plugin/isSameOrBefore";
-import type { RecurrenceDays, CalendarEvent } from "../types";
+import type { CalendarEvent, RecurrenceDays } from "../types";
 
 dayjs.extend(isSameOrAfter);
 dayjs.extend(isSameOrBefore);
@@ -20,30 +20,47 @@ export const getEventsForSlot = (
   day: dayjs.Dayjs,
   hour: number,
   events: CalendarEvent[] | null
-): CalendarEvent[] | undefined => {
-  return events?.filter((event) => {
-    if (event.excludedDates?.some((date) => date.isSame(day, "day"))) {
+): CalendarEvent[] => {
+  if (!events) return [];
+
+  return events.filter((event) => {
+    const eventStart = dayjs(event.start);
+    const eventHour = eventStart.hour();
+
+    if (
+      event.excludedDates?.some((excluded) =>
+        dayjs(excluded).isSame(day, "day")
+      )
+    ) {
       return false;
     }
-    const eventStart = dayjs(event.start);
 
-    const matchesOneTime =
+    if (
       event.recurrence === "none" &&
-      eventStart.isSame(day, "day") &&
-      hour === eventStart.hour();
-    const matchesDaily =
+      day.isSame(eventStart, "day") &&
+      hour === eventHour
+    ) {
+      return true;
+    }
+
+    if (
       event.recurrence === "daily" &&
       day.isSameOrAfter(eventStart, "day") &&
-      hour === eventStart.hour();
-
-    const matchesWeekly =
+      hour === eventHour
+    ) {
+      return true;
+    }
+    if (
       event.recurrence === "weekly" &&
       day.isSameOrAfter(eventStart, "day") &&
-      event.recurrenceDays?.some((d) => {
-        const recDayIndex = recurrenceDayToIndex[d as RecurrenceDays];
-        return recDayIndex === day.day() && hour === eventStart.hour();
-      });
+      event.recurrenceDays?.some(
+        (recDay) =>
+          recurrenceDayToIndex[recDay] === day.day() && hour === eventHour
+      )
+    ) {
+      return true;
+    }
 
-    return matchesOneTime || matchesDaily || matchesWeekly;
+    return false;
   });
 };

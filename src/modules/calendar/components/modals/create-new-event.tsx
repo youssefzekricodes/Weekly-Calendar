@@ -222,7 +222,6 @@ const CreateEventModal = ({
             control={control}
             name="category"
             render={({ field }) => {
-              console.log({ field });
               return (
                 <div className="create-event-drawer__categories">
                   {Object.values(EventCategories).map((val) => (

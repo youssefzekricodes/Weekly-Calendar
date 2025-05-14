@@ -29,6 +29,7 @@ const CalendarGrid = ({ daysOfWeek }: ICalendarGridProps) => {
               const slotEvents = getEventsForSlot(day, hour, events);
               const droppableId = `${day.format("YYYY-MM-DD")}__${hour}`;
 
+              const date = startTime.toISOString();
               return (
                 <Droppable droppableId={droppableId} key={droppableId}>
                   {(provided) => (
@@ -52,11 +53,12 @@ const CalendarGrid = ({ daysOfWeek }: ICalendarGridProps) => {
                               dayjs(event.start),
                               "hour"
                             );
+
                             const overlapCount = arr.length;
                             const widthPercent = 100 / overlapCount;
                             const leftOffset = widthPercent * index;
 
-                            const eventKey = `${day}//${event.id}`;
+                            const eventKey = `${date}//${durationInHours}//${event.id}`;
                             return (
                               <Draggable
                                 key={eventKey}
@@ -75,6 +77,7 @@ const CalendarGrid = ({ daysOfWeek }: ICalendarGridProps) => {
                                     styles={{
                                       left: `${leftOffset}%`,
                                       width: `${widthPercent}%`,
+                                      height: `${durationInHours * 10}rem`,
                                     }}
                                   />
                                 )}

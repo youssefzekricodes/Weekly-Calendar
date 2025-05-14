@@ -40,7 +40,7 @@ const EventCard = forwardRef<any, IEventCardProps>(
               "calendar__event",
               `calendar__event--${event.category}`
             )}
-            style={{ height: `${duration * 100}% `, ...styles }}
+            style={styles}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="calendar__event__header">
