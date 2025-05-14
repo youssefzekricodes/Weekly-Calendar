@@ -1,0 +1,30 @@
+.switch-view {
+  @include Flex();
+  box-shadow: 0px 1px 3px 0px $gray-50;
+  border-radius: 0.8rem;
+  border: 1px solid #e9edf5;
+  overflow: hidden;
+  &__button {
+    @include Flex(column, center, center);
+    padding: 1rem 2rem;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: $gray-100;
+    background: $white;
+    cursor: pointer;
+    border: none;
+    transition: all 0.3s ease;
+    &:first-child {
+      border-right: 1px solid #e9edf5;
+    }
+    &:hover {
+      background: $gray-50;
+    }
+    &--active {
+      color: $primary-500;
+      &:hover {
+        background: $white;
+      }
+    }
+  }
+}

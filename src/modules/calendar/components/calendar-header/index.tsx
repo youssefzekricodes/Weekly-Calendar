@@ -1,4 +1,6 @@
-import React, { type Dispatch, type SetStateAction } from "react";
+import { type Dispatch, type SetStateAction } from "react";
+import NextArrowIcon from "../../../../assets/icons/ic-next-arrow";
+import PrevArrowIcon from "../../../../assets/icons/ic-prev-arrow";
 import { CalendarView } from "../../types";
 interface CalendarHeaderProps {
   setWeekOffset: Dispatch<SetStateAction<number>>;
@@ -9,17 +11,18 @@ interface CalendarHeaderProps {
 const CalendarHeader = ({
   setWeekOffset,
   weekRangeLabel,
-  view,
 }: CalendarHeaderProps) => {
   return (
     <div className="calendar__header">
-      <button onClick={() => setWeekOffset((prev) => prev - 1)}>
-        ← Previous {view === CalendarView.DAY ? "Day" : "Week"}
-      </button>
-      <div>{weekRangeLabel}</div>
-      <button onClick={() => setWeekOffset((prev) => prev + 1)}>
-        Next {view === CalendarView.DAY ? "Day" : "Week"} →
-      </button>
+      <PrevArrowIcon
+        onClick={() => setWeekOffset((prev) => prev - 1)}
+        className="calendar__header__arrow"
+      />
+      <div className="calendar__header__range">{weekRangeLabel}</div>
+      <NextArrowIcon
+        onClick={() => setWeekOffset((prev) => prev + 1)}
+        className="calendar__header__arrow"
+      />
     </div>
   );
 };

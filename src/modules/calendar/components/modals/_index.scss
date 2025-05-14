@@ -1,0 +1,130 @@
+.ant-drawer-content-wrapper {
+  top: 1.5rem !important;
+  right: 1.5rem !important;
+  bottom: 1.5rem !important;
+  border-radius: 1.8rem !important;
+  background: $white !important;
+  box-shadow: 0px 4px 40px -19px rgba(59, 87, 104, 0.32) !important;
+  overflow: hidden !important;
+  width: 60rem !important;
+}
+
+.ant-drawer-mask {
+  background: rgba(233, 244, 254, 0.23) !important;
+  backdrop-filter: blur(3px) !important;
+}
+
+.create-event-drawer {
+  position: relative;
+  &__title {
+    color: #444864;
+    font-size: 1.8rem;
+    font-weight: 500;
+    text-transform: capitalize;
+  }
+  &__footer {
+    position: absolute;
+    @include Flex(row, flex-end);
+    gap: 0.8rem;
+    padding: 2rem;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    border-top: 1px solid #f7f9fa;
+  }
+
+  &__button {
+    color: $gray-100;
+    font-size: 1.4rem;
+    font-weight: 500;
+    padding: 2rem !important;
+    border-radius: 0.5rem;
+    background: $white;
+    box-shadow: 0px 1px 3px 0px $gray-50;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  &__cancel {
+    background: $gray-50;
+    &:hover {
+      background: $gray-100;
+      color: $gray-100 !important;
+    }
+  }
+  &__submit {
+    background: $primary-500;
+    color: white;
+    &:hover {
+      background: $primary-600 !important;
+      color: white !important;
+    }
+  }
+  &__update {
+    background: $primary-800;
+    color: white;
+    &:hover {
+      color: white !important;
+      background: $primary-900 !important;
+    }
+  }
+  &__categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+    gap: 1rem;
+    padding: 2rem;
+    width: 100%;
+  }
+  &__category {
+    @include Flex();
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid $gray-50;
+    border-radius: 1rem;
+    cursor: pointer;
+    &--work {
+      &--active {
+        color: $event-work-text;
+        background-color: $event-work-bg;
+        border-color: $event-work-border;
+      }
+    }
+
+    &--personal {
+      &--active {
+        color: $event-personal-text;
+        background-color: $event-personal-bg;
+        border-color: $event-personal-border;
+      }
+    }
+
+    &--meeting {
+      &--active {
+        background-color: $event-meetings-bg;
+        color: $event-meetings-text;
+        border-color: $event-meetings-border;
+      }
+    }
+  }
+  &__week-days {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    gap: 1rem;
+    padding: 2rem;
+    width: 100%;
+    &__option {
+      @include Flex();
+      gap: 1rem;
+      padding: 0.5rem;
+      border: 1px solid $gray-50;
+      border-radius: 1rem;
+      cursor: pointer;
+      user-select: none;
+      &--active {
+        background-color: $primary-500;
+        color: white;
+        border-color: $primary-500;
+      }
+    }
+  }
+}

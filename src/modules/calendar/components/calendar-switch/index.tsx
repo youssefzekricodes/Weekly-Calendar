@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { CalendarView } from "../../types";
 
 interface CalendarSwitchProps {
@@ -11,14 +12,19 @@ const CalendarSwitch = ({ handelSwitchView, view }: CalendarSwitchProps) => {
       <button
         onClick={() => handelSwitchView(CalendarView.WEEK)}
         disabled={view === CalendarView.WEEK}
+        className={clsx("switch-view__button", {
+          "switch-view__button--active": view === CalendarView.WEEK,
+        })}
       >
-        Weekly
+        Week
       </button>
       <button
         onClick={() => handelSwitchView(CalendarView.DAY)}
-        disabled={view === CalendarView.DAY}
+        className={clsx("switch-view__button", {
+          "switch-view__button--active": view === CalendarView.DAY,
+        })}
       >
-        Daily
+        Day
       </button>
     </div>
   );

@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import isoWeek from "dayjs/plugin/isoWeek";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DragDropContext, type DropResult } from "react-beautiful-dnd";
 
 import CreateEventModal from "./components/modals/create-new-event";
@@ -10,7 +10,6 @@ import CalendarTableView from "./views/calendar-table-view";
 import { useEventsStore } from "./store";
 import { CalendarView, Recurrence } from "./types";
 import CalendarSwitch from "./components/calendar-switch";
-
 dayjs.extend(isoWeek);
 
 const WeeklyCalendar = () => {
@@ -24,9 +23,16 @@ const WeeklyCalendar = () => {
     excludeDateFromRecurrence,
     addEvent,
   } = useEventsStore();
-  const [weekOffset, setWeekOffset] = useState<number>(0);
 
-  console.log({ events });
+  const [weekOffset, setWeekOffset] = useState<number>(() => {
+    const savedOffset = localStorage.getItem("calendar-week-offset");
+    return savedOffset ? Number(savedOffset) : 0;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("calendar-week-offset", weekOffset.toString());
+  }, [weekOffset]);
+
   const currentWeekStart = dayjs().add(weekOffset, "week").startOf("isoWeek");
 
   const daysOfWeek =
@@ -79,17 +85,18 @@ const WeeklyCalendar = () => {
 
   const handelSwitchView = (newView: CalendarView) => {
     setView(newView);
-    setWeekOffset(0);
   };
 
   return (
     <div className="calendar">
-      <CalendarHeader
-        setWeekOffset={setWeekOffset}
-        weekRangeLabel={weekRangeLabel}
-        view={view}
-      />
-      <CalendarSwitch handelSwitchView={handelSwitchView} view={view} />
+      <div className="calendar__settings">
+        <CalendarHeader
+          setWeekOffset={setWeekOffset}
+          weekRangeLabel={weekRangeLabel}
+          view={view}
+        />
+        <CalendarSwitch handelSwitchView={handelSwitchView} view={view} />
+      </div>
       <DragDropContext onDragEnd={onDragEnd}>
         <CalendarTableView daysOfWeek={daysOfWeek} />
       </DragDropContext>

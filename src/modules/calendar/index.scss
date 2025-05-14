@@ -1,4 +1,5 @@
 @import "./components";
+
 .calendar-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -14,6 +15,9 @@
   box-shadow: 0px 4px 17px 0px $background;
   &__key-cell {
     width: 10rem;
+  }
+  &__key-cell,
+  th {
     color: $gray-100;
     text-align: center;
     font-size: 1.2rem;
@@ -28,9 +32,23 @@
       text-align: center;
       padding: 1rem;
       height: 10rem;
+    }
+    td {
+      &:hover {
+        background: $gray-50;
+      }
       &:has(.calendar__cell--slot) {
         padding: 0;
       }
     }
+  }
+  &__settings {
+    @include Flex(row, space-between);
+    padding: 1rem;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: $gray-100;
+    width: 100%;
+    padding: 2.5rem;
   }
 }

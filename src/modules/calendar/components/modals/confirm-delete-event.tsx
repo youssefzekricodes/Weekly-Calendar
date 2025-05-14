@@ -1,6 +1,7 @@
 import { Modal } from "antd";
 import dayjs from "dayjs";
 import { useEventsStore } from "../../store";
+import CloseIcon from "../../../../assets/icons/ic-close";
 
 interface IConfirmDeleteProps {
   open: boolean;
@@ -29,7 +30,12 @@ const ConfirmDelete = ({
   };
 
   return (
-    <Modal open={open} onClose={onCancel} footer={null}>
+    <Modal
+      open={open}
+      onClose={onCancel}
+      footer={null}
+      closeIcon={<CloseIcon />}
+    >
       <div className="confirm-delete">
         <h2>Are you sure you want to delete this event?</h2>
         <div className="confirm-delete__actions">

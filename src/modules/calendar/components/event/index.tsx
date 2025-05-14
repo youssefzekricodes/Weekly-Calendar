@@ -7,6 +7,7 @@ import { Recurrence, type CalendarEvent } from "../../types";
 import { Popover } from "antd";
 import { useEventsStore } from "../../store";
 import ConfirmDelete from "../modals/confirm-delete-event";
+import RefreshIcon from "../../../../assets/icons/ic-refresh";
 
 interface IEventCardProps {
   event: CalendarEvent;
@@ -39,9 +40,17 @@ const EventCard = forwardRef<any, IEventCardProps>(
             style={{ height: `${duration * 100}% `, ...styles }}
             onClick={(e) => e.stopPropagation()}
           >
-            {event.title}{" "}
-            {[Recurrence.DAILY, Recurrence.WEEKLY].includes(event.recurrence) &&
-              "↻"}
+            <div className="calendar__event__header">
+              <div className="calendar__event__title">{event.category}</div>
+              <div className="calendar__event__time">
+                {dayjs(event.start).format("h A")} -
+                {dayjs(event.end).format("h A")}
+              </div>
+              {[Recurrence.DAILY, Recurrence.WEEKLY].includes(
+                event.recurrence
+              ) && <RefreshIcon className="calendar__event__recurrence" />}
+            </div>
+            <div className="calendar__event__name">{event.title}</div>
           </div>
         </Popover>
       </div>
