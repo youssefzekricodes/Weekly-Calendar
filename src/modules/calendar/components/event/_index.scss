@@ -77,6 +77,9 @@
       color: $event-work-text;
       background: $event-work-tag-bg;
     }
+    .calendar__event__name {
+      color: $event-work-text;
+    }
   }
 
   &--personal {
@@ -89,6 +92,9 @@
       color: $event-personal-text;
       background: $event-personal-tag-bg;
     }
+    .calendar__event__name {
+      color: $event-personal-text;
+    }
   }
 
   &--meeting {
@@ -100,6 +106,9 @@
     .calendar__event__time {
       color: $event-meetings-text;
       background: $event-meetings-tag-bg;
+    }
+    .calendar__event__name {
+      color: $event-meetings-text;
     }
   }
 }
