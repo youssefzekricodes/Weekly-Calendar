@@ -1,15 +1,15 @@
 import clsx from "clsx";
 import dayjs from "dayjs";
 
-import { forwardRef, use, useState } from "react";
-import type { DraggableProvided } from "react-beautiful-dnd";
-import { Recurrence, type CalendarEvent } from "../../types";
 import { Popover } from "antd";
-import { useEventsStore } from "../../store";
-import ConfirmDelete from "../modals/confirm-delete-event";
-import RefreshIcon from "../../../../assets/icons/ic-refresh";
-import EditIcon from "../../../../assets/icons/ic-edit";
+import { forwardRef, useState } from "react";
+import type { DraggableProvided } from "react-beautiful-dnd";
 import DeleteIcon from "../../../../assets/icons/ic-delete";
+import EditIcon from "../../../../assets/icons/ic-edit";
+import RefreshIcon from "../../../../assets/icons/ic-refresh";
+import { useEventsStore } from "../../store";
+import { Recurrence, type CalendarEvent } from "../../types";
+import ConfirmDelete from "../modals/confirm-delete-event";
 
 interface IEventCardProps {
   event: CalendarEvent;

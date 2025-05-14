@@ -1,15 +1,17 @@
 import {
   Form as AntForm,
   Button,
-  Checkbox,
   Drawer,
   Input,
   Select,
   TimePicker,
 } from "antd";
+import clsx from "clsx";
 import dayjs from "dayjs";
 import { useEffect, useRef } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
+import ClockIcon from "../../../../assets/icons/ic-clock";
+import CloseIcon from "../../../../assets/icons/ic-close";
 import { useEventsStore } from "../../store";
 import {
   EventCategories,
@@ -17,9 +19,6 @@ import {
   RecurrenceDays,
   type CalendarEvent,
 } from "../../types";
-import CloseIcon from "../../../../assets/icons/ic-close";
-import clsx from "clsx";
-import ClockIcon from "../../../../assets/icons/ic-clock";
 
 const { Option } = Select;
 const weekdayOptions = Object.values(RecurrenceDays);
